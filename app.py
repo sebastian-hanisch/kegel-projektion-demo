@@ -89,7 +89,7 @@ with st.expander("So funktioniert es", expanded=True):
 2. **Moreau als Zertifikat:** `p` ist genau dann die Projektion, wenn `p ∈ K`, `v − p ∈ K°` und `⟨p, v − p⟩ = 0` gilt. Die Demo prüft das an jedem Punkt, ohne einen zweiten Löser.
 3. **Exponential- und Potenzkegel:** auf dem Rand ist `v = y u(ρ) + λ n(ρ)` mit dem Randstrahl `u` und der Normalen `n`; die Bedingung, dass `v` in der Ebene von `u` und `n` liegt, ist eine Gleichung in `ρ` (Vorzeichenwechsel auf einem Gitter, dann Nullstellensuche).
 4. **Abwechselnde Projektionen:** zwischen dem Kegel und dem Bild `{b − A x: cᵀx ≤ γ}` hin- und herprojizieren, bis beide sich berühren: ein Kegelprogramm nur mit Projektionen.
-5. **Der Preis:** jede Projektion ist billig (Experiment 3), aber es sind Hunderte bis Tausende (Experiment 4), wo die Barriere aus Stück 5 bis 7 etwa 30 bis 45 Newton-Schritte brauchte.
+5. **Der Preis:** jede Projektion ist billig (Experiment 3), aber es sind mit dem gewählten Start Hunderte bis Tausende (Experiment 4), wo die Barriere aus Stück 5 bis 7 etwa 30 bis 45 Newton-Schritte brauchte.
         """
     )
 
@@ -208,10 +208,10 @@ st.markdown(
     """
 | Annahme | Was passiert, wenn sie verletzt ist | Wer setzt an |
 |---|---|---|
-| **Eine Projektion ist billig, also ist das Verfahren billig** | Der Schritt ist billig (Experiment 3), aber es sind 100 bis 2 000 Schritte, wo die Barriere etwa 30 bis 45 Newton-Schritte braucht (Experiment 4); je mehr Schritte nötig sind, desto weniger zählt die billige Projektion. | Stück 9 (ADMM), Stück 10 |
+| **Eine Projektion ist billig, also ist das Verfahren billig** | Der Schritt ist billig (Experiment 3), aber es sind mit dem gewählten Start 100 bis 2 000 Schritte (mit dem Schwerpunkt als Start deutlich weniger), wo die Barriere etwa 30 bis 45 Newton-Schritte braucht (Experiment 4); je mehr Schritte nötig sind, desto weniger zählt die billige Projektion. | Stück 9 (ADMM), Stück 10 |
 | **`P(v) − P(−v) = v` gilt für jeden Kegel** | Nur für selbstduale Kegel (Orthant, Lorentz, PSD). Für Exponential- und Potenzkegel (auch a = 0,5 in diesen Koordinaten, wo der gedrehte Lorentz-Kegel zwar symmetrisch, aber nicht selbstdual ist) verfehlt sie `v` (Experiment 2). | – |
 | **Die Moreau-Probe findet jeden Fehler** | Sie ist bis auf die Toleranz zu lesen. An Rändern mit Spitze (Potenzkegel mit a nahe 0 oder 1) kann der Rest die Dualkegel-Bedingung knapp verfehlen, obwohl der Abstand auf 10⁻⁹ stimmt; die Probe besteht dort bei 98 bis 99 % statt bei allen Punkten. | – |
-| **Die Wurzel-Fassung gilt für beliebige Punkte** | Für Punkte, deren Randstrahl außerhalb des Gitters liegt (x/y jenseits von ±700 beim Exponentialkegel, ρ jenseits von e^±250 beim Potenzkegel), wählt sie die Fläche; das ist dort numerisch bedeutungslos, aber keine Garantie. | – |
+| **Die Wurzel-Fassung gilt für beliebige Punkte** | Für Punkte, deren Randstrahl außerhalb des Gitters liegt (x/y jenseits von ±700 beim Exponentialkegel, ρ jenseits von e^±250 beim Potenzkegel), wählt sie die Fläche; das hat dort Abstandsfehler bis 4·10⁻⁶ erzeugt (gemessen) und ist keine Garantie. | – |
 | **PSD kostet `k³`** | Gemessen ist bis k = 128 eine Steigung von etwa 2,1 bis 2,3 (die Konstante der kleinen Größen und LAPACK verdecken den kubischen Teil); der Text sagt „bis k = 128 gemessen“, nicht `O(k³)`. | – |
 | **Abwechselnde Projektionen konvergieren mit festem Tempo** | Die Zahlen (Experiment 4) sind Messbefunde dieser Wolke, dieses Starts und dieses Abbruchkriteriums; mit schrumpfendem Schlupf nähern sich die beiden Mengen einem Punkt und das Verfahren wird langsamer. Die Rate ist nicht hergeleitet. | – |
 | **Die Zeiten gelten allgemein** | Sie hängen vom Rechner ab; die Gitter und Schleifen der Exponential- und Potenzkegel sind nicht die schnellsten Verfahren (Friberg nennt eine Wurzelsuche mit wenigen Schritten). Zeiten werden nicht getestet. | – |

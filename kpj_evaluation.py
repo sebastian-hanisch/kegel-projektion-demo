@@ -206,7 +206,7 @@ def pocs_cases(s: Settings) -> list:
 def start_point(prob, points: np.ndarray, rstar: float) -> np.ndarray:
     """Der Start der abwechselnden Projektionen: der Mittelpunkt um R* in jeder Koordinate aus dem Schwerpunkt verschoben, der Radius das Doppelte des größten Abstands zum verschobenen Mittelpunkt.
     Das ist im Kegel (zulässig), aber über jeder Schranke γ ≤ 1,1 R*; die erste Projektion auf C zieht den Radius auf γ herunter, dort ist der Mittelpunkt falsch, und von da an wechseln die Projektionen.
-    (Ein Start im Schwerpunkt wäre für Schlupf über 7 % schon zulässig: der Schwerpunkt-Ball der Standardwolke ist nur 7 % größer als R*.)"""
+    (Ein Start im Schwerpunkt wäre für die ersten 8 Punkte schon für Schlupf ab etwa 1,5 % zulässig: der Schwerpunkt-Ball ist dort nur 1,5 % größer als R*; für alle 20 Punkte der Standardwolke sind es 16 %.)"""
     d = points.shape[1]
     centre = points.mean(axis=0) + rstar
     r0 = 2.0 * float(np.linalg.norm(points - centre, axis=1).max())
@@ -300,7 +300,7 @@ def verdict_pocs(rows: list, eps: float) -> tuple:
     failed = sum(1 for r in rows for x in r["results"] if not x["converged"])
     return "info", (f"Bei Schlupf {eps_text(eps)} brauchen abwechselnde Projektionen für die Kugel der ersten {min(C.N_POCS, 40)} Punkte: " + "; ".join(parts) + f". Die Barriere aus Stück 5 bis 7 braucht für dieselben Programme "
                     f"{min(r['newton'] for r in rows)} bis {max(r['newton'] for r in rows)} Newton-Schritte bis 10⁻⁹ ({newton}). {failed} der {sum(len(r['results']) for r in rows)} Läufe sind nach {C.MAX_ITER} Schritten nicht gelöst: "
-                    f"billiger Schritt, viele Schritte.")
+                    f"billiger Schritt, viele Schritte (für den gewählten Start; mit dem Schwerpunkt als Start sind es deutlich weniger).")
 
 
 def verdict_expcheck(rows: list) -> tuple:
