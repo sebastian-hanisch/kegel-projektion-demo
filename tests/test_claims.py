@@ -29,12 +29,12 @@ def test_the_default_view_and_the_five_cones_on_the_same_point():
 
 
 def test_moreau_rows():
-    """README: Selbstduale Kegel v = P(v) − P(−v) auf 3·10⁻¹⁵ (Band 10⁻¹²); Exponentialkegel verfehlt um bis zu 4,2, Potenzkegel a = 0,3 um 2,1 und a = 0,5 um 2,2; Moreau-Probe besteht bei 99,85 % (Exponential) bis 100 %."""
+    """README: Selbstduale Kegel v = P(v) − P(−v) auf 3·10⁻¹⁵ (Band 10⁻¹²); Exponentialkegel verfehlt um bis zu 4,2, Potenzkegel a = 0,3 um 2,1 und a = 0,5 um 2,2; Moreau-Probe besteht bei 99,95 % (Exponential, 1 von 2 000 an der Toleranz) bis 100 %."""
     rows = {r["cone"]: r for r in ev.moreau_rows()}
     for name in ("Orthant", "Lorentz-Kegel", "PSD-Kegel (2×2)"):
         assert rows[name]["mirror"] < 1e-12 and rows[name]["self_dual"] and rows[name]["certificate"] == 1.0
     assert 3.5 <= rows["Exponentialkegel"]["mirror"] <= 5.0 and 1.8 <= rows["Potenzkegel, a = 0,3"]["mirror"] <= 2.4 and 1.9 <= rows["Potenzkegel, a = 0,5"]["mirror"] <= 2.5
-    assert rows["Exponentialkegel"]["certificate"] >= 0.995 and rows["Potenzkegel, a = 0,3"]["certificate"] == 1.0 and rows["Potenzkegel, a = 0,5"]["certificate"] == 1.0
+    assert rows["Exponentialkegel"]["certificate"] >= 0.999 and rows["Potenzkegel, a = 0,3"]["certificate"] == 1.0 and rows["Potenzkegel, a = 0,5"]["certificate"] == 1.0
     assert all(r["idempotent"] < 1e-9 and r["nonexpansive_violations"] == 0 and r["count"] == 2000 for r in rows.values())
     assert not any(r["self_dual"] for k, r in rows.items() if k.startswith(("Exponential", "Potenz")))
 

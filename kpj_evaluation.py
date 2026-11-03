@@ -280,7 +280,7 @@ def verdict_moreau(rows: list) -> tuple:
     worst_sd = max(r["mirror"] for r in sd)
     return "info", (f"An je {rows[0]['count']} Zufallspunkten gilt v = P(v) − P(−v) für die selbstdualen Kegel (Orthant, Lorentz, PSD) auf {sci(worst_sd)}; für "
                     + ", ".join(f"{r['cone']} verfehlt es v um bis zu {de(r['mirror'], 2)}" for r in nsd)
-                    + f". Die Moreau-Probe (p im Kegel, v − p im Polarkegel, ⟨p, v − p⟩ = 0) besteht bei {de(100 * min(r['certificate'] for r in rows), 1)} % bis {de(100 * max(r['certificate'] for r in rows), 1)} % der Punkte; "
+                    + f". Die Moreau-Probe (p im Kegel, v − p im Polarkegel, ⟨p, v − p⟩ = 0) besteht bei {de(100 * min(r['certificate'] for r in rows), 2)} % bis {de(100 * max(r['certificate'] for r in rows), 2)} % der Punkte; "
                     f"die Projektion ist idempotent (größte Abweichung {sci(max(r['idempotent'] for r in rows))}) und nichtexpansiv ({sum(r['nonexpansive_violations'] for r in rows)} Verletzungen).")
 
 

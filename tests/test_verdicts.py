@@ -48,14 +48,14 @@ def test_table_verdict_groups_the_cones_by_the_position_of_v():
 
 def _moreau_rows():
     return [{"cone": c, "kind": k, "self_dual": sd, "count": 2000, "mirror": m, "certificate": cert, "idempotent": 1e-15, "nonexpansive_violations": 0, "inside": 0.1, "polar": 0.1}
-            for c, k, sd, m, cert in (("Orthant", "l", True, 0.0, 1.0), ("Lorentz-Kegel", "q", True, 1e-15, 1.0), ("PSD-Kegel (2×2)", "s", True, 2e-15, 1.0), ("Exponentialkegel", "e", False, 4.18, 0.9985),
+            for c, k, sd, m, cert in (("Orthant", "l", True, 0.0, 1.0), ("Lorentz-Kegel", "q", True, 1e-15, 1.0), ("PSD-Kegel (2×2)", "s", True, 2e-15, 1.0), ("Exponentialkegel", "e", False, 4.18, 0.9995),
                                       ("Potenzkegel, a = 0,3", "p", False, 2.06, 1.0))]
 
 
 def test_moreau_verdict_contrasts_self_dual_and_the_other_cones():
     kind, text = ev.verdict_moreau(_moreau_rows())
     assert kind == "info"
-    for part in ("An je 2000 Zufallspunkten", "auf 2,0·10⁻¹⁵", "Exponentialkegel verfehlt es v um bis zu 4,18, Potenzkegel, a = 0,3 verfehlt es v um bis zu 2,06", "bei 99,9 % bis 100,0 % der Punkte", "0 Verletzungen"):
+    for part in ("An je 2000 Zufallspunkten", "auf 2,0·10⁻¹⁵", "Exponentialkegel verfehlt es v um bis zu 4,18, Potenzkegel, a = 0,3 verfehlt es v um bis zu 2,06", "bei 99,95 % bis 100,00 % der Punkte", "0 Verletzungen"):
         assert part in text, part
 
 

@@ -117,6 +117,69 @@ def test_the_root_version_and_the_grid_version_of_the_exponential_cone_differ_wh
     assert np.max(np.linalg.norm(V - grid, axis=1) - np.linalg.norm(V - root, axis=1)) > 1e-3         # und liegt dort messbar weiter weg
 
 
+def _exp_distance_by_search(v: np.ndarray) -> float:
+    """Gegenverfahren ohne die Wurzelgleichung: der Abstand von v zum Exponentialkegel als Minimum der Abstände zu den Randstrahlen y·u(ρ), u = (ρ, 1, e^ρ), über ρ (dichte Suche, dann
+    lokale Verfeinerung; der Abstand wird als ‖v − y u‖ aus der Differenz gerechnet, nicht aus ‖v‖² − ⟨v, û⟩²), und zur Fläche y = 0. v im Kegel: 0."""
+    from scipy.optimize import minimize_scalar
+
+    x, y, z = v
+    if (y > 0 and z >= y * math.exp(min(x / y, 700.0))) or (y == 0 and x <= 0 and z >= 0):
+        return 0.0
+
+    def unit(r):
+        r = np.asarray(r, float)
+        big = r > 30.0
+        e = np.exp(-np.maximum(r, 0.0))
+        u = np.stack([np.where(big, r * e, r), np.where(big, e, 1.0), np.where(big, 1.0, np.exp(np.minimum(r, 30.0)))], axis=-1)
+        return u / np.linalg.norm(u, axis=-1, keepdims=True)
+
+    def dist(r):
+        u = unit(r)
+        return np.linalg.norm(v - np.maximum(u @ v, 0.0)[..., None] * u, axis=-1)
+
+    grid = np.concatenate([np.linspace(-6000.0, -60.0, 3000), np.linspace(-60.0, 60.0, 24001), np.linspace(60.0, 800.0, 3000)])
+    d = dist(grid)
+    i = int(np.argmin(d))
+    res = minimize_scalar(dist, bounds=(grid[max(i - 1, 0)], grid[min(i + 1, len(grid) - 1)]), method="bounded", options={"xatol": 1e-13 * max(1.0, abs(grid[i]))})
+    face = np.linalg.norm(v - np.array([min(x, 0.0), 0.0, max(z, 0.0)]))
+    return float(min(face, res.fun, d[i]))
+
+
+def test_the_exponential_cone_left_of_the_root_grid_is_projected_onto_the_curve():
+    """Bei x/y < −700 (Gitter der Wurzelsuche) wählte die Projektion die Fläche y = 0 und lag bis 4,2·10⁻⁶ zu weit weg (Aussagenprüfung: drei Moreau-Durchfälle der 2 000 Punkte).
+    Von Hand: dort ist y e^(x/y) < 10⁻³⁰⁰ y, der Punkt (x, y, 0) liegt in Gleitkomma im Kegel, und v − p = (0, 0, z) mit z < 0 liegt im Polarkegel und ist orthogonal zu p:
+    das sind die Optimalitätsbedingungen (Moreau), also ist p die Projektion und der Abstand |z|."""
+    V = np.array([[-2.10694812, 0.00216702, -0.56465088], [-1.26802736, 6.73397896e-4, -1.50076481], [-3.0, 1e-3, -2.0], [-1e5, 5.0, -1e-3]])
+    p = P.proj_exp(V)
+    assert p[:, :2] == pytest.approx(V[:, :2], rel=1e-14) and (p[:, 2] <= 1e-300).all()
+    assert np.linalg.norm(V - p, axis=1) == pytest.approx(np.abs(V[:, 2]), rel=1e-14)
+    cert = P.certificate("e", None, V, p)
+    assert cert["ok"].all() and cert["in_cone"].all() and cert["in_polar"].all()
+
+
+def test_the_exponential_cone_tail_passes_the_optimality_conditions_and_matches_a_search():
+    """Zufallspunkte mit x/y von −5 000 bis −700 (und etwas darüber): Moreau-Probe (Optimalitätsbedingungen) an allen, Abstand gleich dem Gegenverfahren (Suche über ρ) auf 10⁻⁹."""
+    rng = np.random.default_rng(11)
+    n = 400
+    y = 10.0 ** rng.uniform(-6.0, 1.0, n)
+    V = np.stack([y * rng.uniform(-5000.0, -600.0, n), y, rng.normal(size=n) * 10.0 ** rng.uniform(-3.0, 2.0, n)], axis=1)
+    p = P.proj_exp(V)
+    assert P.certificate("e", None, V, p)["ok"].all()
+    got = np.linalg.norm(V - p, axis=1)
+    for i in range(0, n, 8):                                     # jede achte Zeile gegen die Suche (Laufzeit)
+        assert got[i] == pytest.approx(_exp_distance_by_search(V[i]), abs=1e-9 * max(1.0, np.linalg.norm(V[i]))), V[i]
+
+
+def test_the_exponential_cone_right_of_the_grid_and_at_large_scales_matches_a_search():
+    """Stichprobe jenseits des Gitters nach rechts (x/y 300 bis 5 000, z bis 10¹⁰⁰): kein Abstandsfehler gegen die Suche (keine Garantie darüber hinaus, README)."""
+    rng = np.random.default_rng(12)
+    for _ in range(60):
+        y = 10.0 ** rng.uniform(-3.0, 1.0)
+        v = np.array([y * rng.uniform(300.0, 5000.0), y, 10.0 ** rng.uniform(-3.0, 100.0) * rng.choice([-1.0, 1.0])])
+        d = np.linalg.norm(v - P.proj_exp(v[None])[0])
+        assert d == pytest.approx(_exp_distance_by_search(v), abs=1e-9 * max(1.0, np.linalg.norm(v))), v
+
+
 def test_the_certificate_rejects_a_wrong_projection():
     """Ein beliebiger Punkt des Kegels ist keine Projektion: die Probe fällt durch."""
     V = np.array([[1.0, 0.5, -0.5]])
